@@ -47,15 +47,33 @@ public class GameLogic implements PlayableLogic{
     public boolean move(Position a, Position b) {
         ConcretePiece poa = board[a._x][a._y];
         ConcretePiece pob = this.board[b._x][b._y];
-        if (poa == null || pob != null) return false;
+        if (poa == null || pob != null) return false; // If a is empty or b already has a piece
         Player cuPl;
         if (this.isSecondPlayerTurn()) cuPl = playerTwo;
          else cuPl = playerOne;
         Player aOwner = poa.getOwner();
-        if (cuPl != aOwner) return false;
+        if (cuPl != aOwner) return false; // If it's not the piece owner turn
+        //check for attempting moving diagonally
+        if (a._x != b._x && a._y != b._y) return false;
+        //check for clear path, without pieces in between
+        int min, max;
+        if (a._x == b._x) {
+            min  = Math.min(a._y, b._y);
+            max = Math.max(a._y, b._y);
+            for (int s = min+1; s<max; s++) {
+                if (this.board[a._x][s] != null) return false;
+            }
+        }
+        if (a._y == b._y) {
+            min  = Math.min(a._x, b._x);
+            max = Math.max(a._x, b._x);
+            for (int s = min+1; s<max; s++) {
+                if (this.board[s][a._y] != null) return false;
+            }
+        }
         this.board[b._x][b._y] = poa;
         this.board[a._x][a._y] = null;
-        secondPlayerTurn = !secondPlayerTurn;
+        secondPlayerTurn = !secondPlayerTurn; // switch turns
         return true;
     }
 
