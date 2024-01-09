@@ -1,13 +1,13 @@
 public abstract class ConcretePiece implements Piece {
     //data
-    Player _owner;
+    Player owner;
     //methods
     public ConcretePiece(ConcretePlayer player) {
-        this._owner = player;
+        this.owner = player;
     }
     @Override
     public Player getOwner() {
-        return this._owner;
+        return this.owner;
     }
 
 }
