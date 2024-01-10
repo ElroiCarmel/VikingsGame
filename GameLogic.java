@@ -75,7 +75,7 @@ public class GameLogic implements PlayableLogic{
         if (!(this.board[a._x][a._y] instanceof King) && isCorner(b)) return false;
         //make the move
         this.board[b._x][b._y] = poa;
-        if (poa.getType() != King.getType()) {
+        if (!(poa instanceof King)) {
             updateKills(b);
         }
         this.board[a._x][a._y] = null;

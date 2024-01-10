@@ -10,8 +10,8 @@ public class King extends ConcretePiece{
     }
 
     @Override
-    public static String getType() {
-        return this.TYPE;
+    public String getType() {
+        return TYPE;
     }
     //methods
 }
