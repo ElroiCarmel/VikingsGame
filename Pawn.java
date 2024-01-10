@@ -2,11 +2,15 @@ public class Pawn extends ConcretePiece{
     //data
     private static final String PLAYER_ONE_TYPE = "♙";
     private static final String PLAYER_TWO_TYPE = "♟";
+
+    private int kills;
     //constructor
 
 
-    public Pawn(ConcretePlayer player) {
-        super(player);
+    public Pawn(ConcretePlayer player, int id) {
+        super(player, id);
+       // super(player);
+        kills = 0;
     }
 
     @Override
@@ -15,5 +19,7 @@ public class Pawn extends ConcretePiece{
         return this.PLAYER_TWO_TYPE;
     }
     //methods
-
+    public int getKills() {
+        return this.kills;
+    }
 }

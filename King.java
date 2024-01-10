@@ -5,8 +5,9 @@ public class King extends ConcretePiece{
     //constructor
 
 
-    public King(ConcretePlayer player) {
-        super(player);
+    public King(ConcretePlayer player, int id) {
+        super(player, id);
+       // super(player);
     }
 
     @Override
