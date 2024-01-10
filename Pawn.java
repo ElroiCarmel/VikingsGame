@@ -9,17 +9,24 @@ public class Pawn extends ConcretePiece{
 
     public Pawn(ConcretePlayer player, int id) {
         super(player, id);
-       // super(player);
         kills = 0;
     }
 
     @Override
     public String getType() {
-        if (this.getOwner().isPlayerOne()) return this.PLAYER_ONE_TYPE;
-        return this.PLAYER_TWO_TYPE;
+        if (this.getOwner().isPlayerOne()) return PLAYER_ONE_TYPE;
+        return PLAYER_TWO_TYPE;
     }
     //methods
     public int getKills() {
         return this.kills;
+    }
+
+    public void addKills(int num) {
+        this.kills = this.kills + num;
+    }
+    public String toString() {
+        if (this.getOwner().isPlayerOne()) return "D" + this.getID();
+        return "A" + this.getID();
     }
 }

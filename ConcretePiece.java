@@ -6,6 +6,8 @@ public abstract class ConcretePiece implements Piece {
     private final Player owner;
     private final int id;
 
+    private int stepsCount = 0;
+
     private List<Position> moves = new LinkedList<>();
     //methods
     public ConcretePiece(ConcretePlayer player, int id) {
@@ -18,8 +20,25 @@ public abstract class ConcretePiece implements Piece {
         return this.owner;
     }
 
-    private void addMove(Position p) {
+    public void addMove(Position p) {
         this.moves.add(p);
     }
+    public int getID(){
+        return this.id;
+    }
+    public void addSteps(int num) {
+        this.stepsCount = this.stepsCount + num;
+    }
 
+    public int getStepsCount(){
+        return this.stepsCount;
+    }
+
+    public Position getLastPosition() {
+        return moves.getLast();
+    }
+
+    public List<Position> getMoves() {
+        return moves;
+    }
 }

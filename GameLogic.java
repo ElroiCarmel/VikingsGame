@@ -1,66 +1,20 @@
+import java.util.Arrays;
+
 public class GameLogic implements PlayableLogic{
     //data
     private static final int BOARD_SIZE = 11;
     private ConcretePlayer playerOne = new ConcretePlayer(true);
     private ConcretePlayer playerTwo = new ConcretePlayer(false);
 
-    private ConcretePiece[] pieces = new ConcretePiece[32];
+    private ConcretePiece[] pieces;
 
     //private ConcretePlayer currentPlayer;
 
     private boolean secondPlayerTurn;
-    private ConcretePiece[][] board = new ConcretePiece[BOARD_SIZE][BOARD_SIZE];
+    private ConcretePiece[][] board;
     //Constructor
     public GameLogic() {
-        for (int i = 0; i<19; i++) {
-            pieces[i] = new Pawn(playerTwo, i+1);
-        }
-        for (int i = 19; i<31; i++) {
-            pieces[i] = new Pawn(playerOne, i-18);
-        }
-        pieces[31] = new King(playerOne, 7);
-        // Initate player two pieces on board
-        board[3][0] = pieces[0];
-        board[4][0] = pieces[1];
-        board[5][0] = pieces[2];
-        board[6][0] = pieces[3];
-        board[7][0] = pieces[4];
-        board[5][1] = pieces[5];
-        board[0][3] = pieces[6];
-        board[10][3] = pieces[7];
-        board[0][4] = pieces[8];
-        board[10][4] = pieces[9];
-
-//        for (int j : new int[]{0, 10}) {
-//        for (int i = 3; i<=7; i++) {
-//                this.board[i][j] = new Pawn(playerTwo);
-//            }
-//        }
-//        for (int j : new int[]{0, 10}) {
-//            for (int i = 3; i <= 7; i++) {
-//                this.board[j][i] = new Pawn(playerTwo);
-//            }
-//        }
-//        this.board[5][1] = new Pawn(playerTwo);
-//        this.board[1][5] = new Pawn(playerTwo);
-//        this.board[9][5] = new Pawn(playerTwo);
-//        this.board[5][9] = new Pawn(playerTwo);
-//        // Initiate player one pieces
-//        for (int i = 3; i<=7; i++) {
-//            if (i==5) continue;
-//            this.board[i][5] = new Pawn(playerOne);
-//        }
-//        for (int i : new  int[] {4, 6}) {
-//            for (int j : new int[] {4,5,6}) {
-//                this.board[j][i] = new Pawn(playerOne);
-//            }
-//        }
-//        this.board[5][3] = new Pawn(playerOne);
-//        this.board[5][7] = new Pawn(playerOne);
-//        this.board[5][5] = new King(playerOne);
-
-        secondPlayerTurn = true;
-        //this.currentPlayer = playerTwo;
+        reset();
     }
     //methods
     @Override
@@ -95,8 +49,14 @@ public class GameLogic implements PlayableLogic{
         if (!(this.board[a._x][a._y] instanceof King) && isCorner(b)) return false;
         //make the move
         this.board[b._x][b._y] = poa;
+        // Adding information for Statistics
+        // Steps taken
+        int dist = Math.abs(a._x - b._x) + Math.abs(a._y - b._y);
+        poa.addSteps(dist);
+        // Add position for moves history
+        poa.addMove(b);
         if (!(poa instanceof King)) {
-            updateKills(b);
+            ((Pawn) poa).addKills(updateKills(b));
         }
         this.board[a._x][a._y] = null;
         secondPlayerTurn = !secondPlayerTurn; // switch turns
@@ -110,15 +70,15 @@ public class GameLogic implements PlayableLogic{
         Position check;
         // Up
         check = new Position(x, y-1);
-        if (inRange(check) && getPieceAtPosition(check) != null && getPieceAtPosition(check).getOwner() != currentPlayer) {
-            if (y-1 == 0 || (this.board[x][y-2]!= null && this.board[x][y-2].getOwner() == currentPlayer)) {
+        if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
+            if (y-1 == 0 || (this.board[x][y-2] != null && this.board[x][y-2].getOwner() == currentPlayer)) {
                 this.board[check._x][check._y] = null;
                 ans+=1;
             }
         }
         // Down
         check = new Position(x, y+1);
-        if (inRange(check) && getPieceAtPosition(check) != null && getPieceAtPosition(check).getOwner() != currentPlayer) {
+        if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
             if (y+1 == 10 || (this.board[x][y+2]!= null && this.board[x][y+2].getOwner() == currentPlayer)) {
                 this.board[check._x][check._y] = null;
                 ans+=1;
@@ -126,7 +86,7 @@ public class GameLogic implements PlayableLogic{
         }
         // Right
         check = new Position(x+1, y);
-        if (inRange(check) && getPieceAtPosition(check) != null && getPieceAtPosition(check).getOwner() != currentPlayer) {
+        if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
             if (x+1 == 10 || (this.board[x+2][y] != null && this.board[x+2][y].getOwner() == currentPlayer)) {
                 this.board[check._x][check._y] = null;
                 ans += 1;
@@ -134,21 +94,13 @@ public class GameLogic implements PlayableLogic{
         }
         // Left
         check = new Position(x-1, y);
-        if (inRange(check) && getPieceAtPosition(check) != null && getPieceAtPosition(check).getOwner() != currentPlayer) {
+        if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
             if (x-1 == 0 || (this.board[x-2][y] != null && this.board[x-2][y].getOwner() == currentPlayer)) {
                 this.board[check._x][check._y] = null;
                 ans += 1;
             }
         }
-       // ConcretePiece neighbour = this.board[x+1]
-//        Position[] neigh = new Position[4];
-//        neigh[0]  = new Position(x+1, y);
-//        neigh[1]  = new Position(x-1, y);
-//        neigh[2]  = new Position(x, y+1);
-//        neigh[3]  = new Position(x, y-1);
-//        for (Position cuPo : neigh) {
-//            if (cuPo)
-//        }
+
         return ans;
 
         // x+1,y+0
@@ -181,7 +133,28 @@ public class GameLogic implements PlayableLogic{
 
     @Override
     public boolean isGameFinished() {
-        //
+        // Player 1 wins
+        if (isCorner(pieces[30].getLastPosition())){
+            this.playerOne.addWin();
+            return true;
+        }
+        // Check if king is captured
+        Position kp = pieces[30].getLastPosition();
+        Position up = new Position(kp._x, kp._y-1);
+        Position down = new Position(kp._x, kp._y+1);
+        Position right = new Position(kp._x+1, kp._y);
+        Position left = new Position(kp._x-1, kp._y);
+        Position[] posArr = new Position[] {up, down, right, left};
+        boolean kingCapture = true;
+        for (Position p : posArr) {
+//            if (inRange(p)) return
+            boolean temp = !inRange(p) || (getPieceAtPosition(p) != null && !getPieceAtPosition(p).getOwner().isPlayerOne());
+            kingCapture = kingCapture && temp;
+        }
+        if (kingCapture) {
+            this.playerTwo.addWin();
+            return true;
+        }
         return false;
     }
 
@@ -192,7 +165,57 @@ public class GameLogic implements PlayableLogic{
 
     @Override
     public void reset() {
-
+        this.board = new ConcretePiece[BOARD_SIZE][BOARD_SIZE];
+        this.pieces = new ConcretePiece[37];
+        for (int i = 0; i<24; i++) {
+            pieces[i] = new Pawn(playerTwo, i+1);
+        }
+        for (int i = 24; i<37; i++) {
+            if (i-23 == 7) continue;
+            pieces[i] = new Pawn(playerOne, i-23);
+        }
+        pieces[30] = new King(playerOne, 7);
+        pieces[0].addMove(new Position(3,0));
+        pieces[1].addMove(new Position(4,0));
+        pieces[2].addMove(new Position(5,0));
+        pieces[3].addMove(new Position(6,0));
+        pieces[4].addMove(new Position(7,0));
+        pieces[5].addMove(new Position(5,1));
+        pieces[6].addMove(new Position(0,3));
+        pieces[7].addMove(new Position(10,3));
+        pieces[8].addMove(new Position(0,4));
+        pieces[9].addMove(new Position(10,4));
+        pieces[10].addMove(new Position(0,5));
+        pieces[11].addMove(new Position(1,5));
+        pieces[12].addMove(new Position(9,5));
+        pieces[13].addMove(new Position(10,5));
+        pieces[14].addMove(new Position(0,6));
+        pieces[15].addMove(new Position(10,6));
+        pieces[16].addMove(new Position(0,7));
+        pieces[17].addMove(new Position(10,7));
+        pieces[18].addMove(new Position(5,9));
+        for (int i = 19, po = 3; i < 24; i++, po++) {
+            pieces[i].addMove(new Position(po, 10));
+        }
+        pieces[24].addMove(new Position(5, 3));
+        pieces[25].addMove(new Position(4, 4));
+        pieces[26].addMove(new Position(5, 4));
+        pieces[27].addMove(new Position(6, 4));
+        for (int i = 28, po = 3; i < 33; i++, po++) {
+            if (i==30) continue;
+            pieces[i].addMove(new Position(po,5));
+        }
+        pieces[30].addMove(new Position(5,5));
+        pieces[33].addMove(new Position(4, 6));
+        pieces[34].addMove(new Position(5, 6));
+        pieces[35].addMove(new Position(6, 6));
+        pieces[36].addMove(new Position(5, 7));
+        for (ConcretePiece p : pieces) {
+            Position lp = p.getLastPosition();
+            int x = lp._x, y = lp._y;
+            board[x][y] = p;
+        }
+        secondPlayerTurn = true;
     }
 
     @Override
@@ -202,7 +225,7 @@ public class GameLogic implements PlayableLogic{
 
     @Override
     public int getBoardSize() {
-        return this.BOARD_SIZE;
+        return BOARD_SIZE;
     }
     private boolean isCorner(Position p) {
         for (int i : new int[] {0, GameLogic.BOARD_SIZE-1}) {

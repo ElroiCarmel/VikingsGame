@@ -15,4 +15,8 @@ public class King extends ConcretePiece{
         return TYPE;
     }
     //methods
+
+    public String toString() {
+        return "K7";
+    }
 }
