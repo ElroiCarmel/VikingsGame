@@ -75,7 +75,9 @@ public class GameLogic implements PlayableLogic{
         if (!(this.board[a._x][a._y] instanceof King) && isCorner(b)) return false;
         //make the move
         this.board[b._x][b._y] = poa;
-        updateKills(b);
+        if (poa.getType() != King.getType()) {
+            updateKills(b);
+        }
         this.board[a._x][a._y] = null;
         secondPlayerTurn = !secondPlayerTurn; // switch turns
         return true;
@@ -94,10 +96,26 @@ public class GameLogic implements PlayableLogic{
                 ans+=1;
             }
         }
+        // Down
+        check = new Position(x, y+1);
+        if (inRange(check) && getPieceAtPosition(check) != null && getPieceAtPosition(check).getOwner() != currentPlayer) {
+            if (y+1 == 10 || (this.board[x][y+2]!= null && this.board[x][y+2].getOwner() == currentPlayer)) {
+                this.board[check._x][check._y] = null;
+                ans+=1;
+            }
+        }
         // Right
         check = new Position(x+1, y);
         if (inRange(check) && getPieceAtPosition(check) != null && getPieceAtPosition(check).getOwner() != currentPlayer) {
             if (x+1 == 10 || (this.board[x+2][y] != null && this.board[x+2][y].getOwner() == currentPlayer)) {
+                this.board[check._x][check._y] = null;
+                ans += 1;
+            }
+        }
+        // Left
+        check = new Position(x-1, y);
+        if (inRange(check) && getPieceAtPosition(check) != null && getPieceAtPosition(check).getOwner() != currentPlayer) {
+            if (x-1 == 0 || (this.board[x-2][y] != null && this.board[x-2][y].getOwner() == currentPlayer)) {
                 this.board[check._x][check._y] = null;
                 ans += 1;
             }
