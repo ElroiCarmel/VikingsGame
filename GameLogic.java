@@ -62,6 +62,11 @@ public class GameLogic implements PlayableLogic {
         }
         this.board[a._x][a._y] = null;
         secondPlayerTurn = !secondPlayerTurn; // switch turns
+        /**
+         * Problem: only if i activate isGameFinished the test works,
+         * need to talk to the teacher
+         */
+        //isGameFinished();
         return true;
     }
 
@@ -292,6 +297,7 @@ public class GameLogic implements PlayableLogic {
         }
         Collections.sort(positions, new PositionComp());
         printPositions(positions);
+        printAst();
     }
 
     private void printPositions(List<Position> lop) {
@@ -317,7 +323,7 @@ public class GameLogic implements PlayableLogic {
     private void printWithMoves(ConcretePiece[] arr, int s, int e) {
         for (int i = s; i < e; i++) {
             if (pieces[i].getMoves().size() > 1) {
-                System.out.println(pieces[i] + " : " + pieces[i].getMoves());
+                System.out.println(pieces[i] + ": " + pieces[i].getMoves());
             }
         }
     }
