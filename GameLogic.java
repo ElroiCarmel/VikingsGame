@@ -14,6 +14,8 @@ public class GameLogic implements PlayableLogic {
     private ConcretePiece[][] board;
     private boolean isGameFinished;
 
+    private Stack<Turn> turnHistory;
+
     //Constructor
     public GameLogic() {
         reset();
@@ -52,24 +54,31 @@ public class GameLogic implements PlayableLogic {
         if (!(this.board[a._x][a._y] instanceof King) && isCorner(b)) return false;
         //make the move
         this.board[b._x][b._y] = poa;
-        // Adding information for Statistics
-        // Steps taken
-        //int dist = Math.abs(a._x - b._x) + Math.abs(a._y - b._y);
-//        poa.addDist(dist);
         // Add position for moves history
         poa.addMove(b);
+        Turn turn;
         if (!(poa instanceof King)) {
-            ((Pawn) poa).addKills(updateKills(b));
+            LinkedList<ConcretePiece> kp = updateKills(b);
+            int k = kp.size();
+            if (k > 0) {
+                ((Pawn) poa).addKills(k);
+                turn = new Turn(poa, kp);
+                this.turnHistory.add(turn);
+            } else {
+                turn = new Turn(poa);
+                this.turnHistory.add(turn);
+            }
         }
         this.board[a._x][a._y] = null;
+//        this.turnHistory.add(turn);
         this.isGameFinished = isGameFinishedHelper();
         secondPlayerTurn = !secondPlayerTurn; // switch turns
 
         return true;
     }
 
-    private int updateKills(Position p) {
-        int ans = 0;
+    private LinkedList<ConcretePiece> updateKills(Position p) {
+        LinkedList<ConcretePiece> ans = new LinkedList<>();
         int x = p._x, y = p._y;
         ConcretePlayer currentPlayer = (this.isSecondPlayerTurn()) ? this.playerTwo : this.playerOne;
         Position check;
@@ -77,32 +86,32 @@ public class GameLogic implements PlayableLogic {
         check = new Position(x, y - 1);
         if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
             if (y - 1 == 0 || (this.board[x][y - 2] != null && this.board[x][y - 2].getOwner() == currentPlayer && (this.board[x][y - 2] instanceof Pawn))) {
+                ans.add(this.board[check._x][check._y]);
                 this.board[check._x][check._y] = null;
-                ans += 1;
             }
         }
         // Down
         check = new Position(x, y + 1);
         if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
             if (y + 1 == 10 || (this.board[x][y + 2] != null && this.board[x][y + 2].getOwner() == currentPlayer && (this.board[x][y + 2] instanceof Pawn))) {
+                ans.add(this.board[check._x][check._y]);
                 this.board[check._x][check._y] = null;
-                ans += 1;
             }
         }
         // Right
         check = new Position(x + 1, y);
         if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
             if (x + 1 == 10 || (this.board[x + 2][y] != null && this.board[x + 2][y].getOwner() == currentPlayer && (this.board[x + 2][y] instanceof Pawn))) {
+                ans.add(this.board[check._x][check._y]);
                 this.board[check._x][check._y] = null;
-                ans += 1;
             }
         }
         // Left
         check = new Position(x - 1, y);
         if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
             if (x - 1 == 0 || (this.board[x - 2][y] != null && this.board[x - 2][y].getOwner() == currentPlayer && (this.board[x - 2][y] instanceof Pawn))) {
+                ans.add(this.board[check._x][check._y]);
                 this.board[check._x][check._y] = null;
-                ans += 1;
             }
         }
 
@@ -228,13 +237,32 @@ public class GameLogic implements PlayableLogic {
             int x = lp._x, y = lp._y;
             board[x][y] = p;
         }
-        secondPlayerTurn = true;
+        this.secondPlayerTurn = true;
         this.isGameFinished = false;
+        this.turnHistory = new Stack<>();
     }
 
     @Override
     public void undoLastMove() {
-
+        if (!this.turnHistory.isEmpty()) {
+            Turn lastTurn = this.turnHistory.pop();
+            ConcretePiece lpm = lastTurn.getPieceMoved();
+            LinkedList<ConcretePiece> pk = lastTurn.getPiecesKilled();
+            Position temp = lpm.getLastPosition();
+            this.board[temp._x][temp._y] = null;
+            lpm.removeLstPos();
+            temp = lpm.getLastPosition();
+            this.board[temp._x][temp._y] = lpm;
+            if (!pk.isEmpty()) {
+                Iterator<ConcretePiece> it = pk.iterator();
+                while (it.hasNext()) {
+                    ConcretePiece pieceToReturn = it.next();
+                    Position p = pieceToReturn.getLastPosition();
+                    this.board[p._x][p._y] = pieceToReturn;
+                }
+                ((Pawn) lpm).substractKills(pk.size());
+            }
+        }
     }
 
     @Override
@@ -256,17 +284,17 @@ public class GameLogic implements PlayableLogic {
         Arrays.sort(pieces, 0, 24, new CompBySteps());
         Arrays.sort(pieces, 24, pieces.length, new CompBySteps());
         if (whoWon == playerTwo) {
-            printWithMoves(this.pieces, 0, 24);
-            printWithMoves(this.pieces, 24, pieces.length);
+            printWithMoves( 0, 24);
+            printWithMoves( 24, pieces.length);
         } else {
-            printWithMoves(this.pieces, 24, pieces.length);
-            printWithMoves(this.pieces, 0, 24);
+            printWithMoves( 24, pieces.length);
+            printWithMoves( 0, 24);
         }
         printAst();
         ArrayList<Pawn> temp = new ArrayList<>();
-        for (int i = 0; i < pieces.length; i++) {
-            if (pieces[i] instanceof Pawn) {
-                Pawn pawn = (Pawn) pieces[i];
+        for (ConcretePiece piece : pieces) {
+            if (piece instanceof Pawn) {
+                Pawn pawn = (Pawn) piece;
                 if (pawn.getKills() > 0) temp.add(pawn);
             }
         }
@@ -323,7 +351,7 @@ public class GameLogic implements PlayableLogic {
         }
     }
 
-    private void printWithMoves(ConcretePiece[] arr, int s, int e) {
+    private void printWithMoves(int s, int e) {
         for (int i = s; i < e; i++) {
             if (pieces[i].getMoves().size() > 1) {
                 System.out.println(pieces[i] + ": " + pieces[i].getMoves());

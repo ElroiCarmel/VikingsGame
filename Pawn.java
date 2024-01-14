@@ -25,6 +25,10 @@ public class Pawn extends ConcretePiece{
     public void addKills(int num) {
         this.kills = this.kills + num;
     }
+
+    public void substractKills(int n) {
+        this.kills = this.kills - n;
+    }
     public String toString() {
         if (this.getOwner().isPlayerOne()) return "D" + this.getID();
         return "A" + this.getID();
