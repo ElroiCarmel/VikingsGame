@@ -27,9 +27,7 @@ public abstract class ConcretePiece implements Piece {
     public int getID(){
         return this.id;
     }
-    public void addDist(int num) {
-        this.totalDist = this.totalDist + num;
-    }
+
 
     public int getTotalDist(){
         if (moves.size() < 2) return 0;
