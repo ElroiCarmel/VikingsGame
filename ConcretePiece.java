@@ -1,3 +1,4 @@
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -31,7 +32,21 @@ public abstract class ConcretePiece implements Piece {
     }
 
     public int getTotalDist(){
-        return this.totalDist;
+        if (moves.size() < 2) return 0;
+        int ans = 0;
+        Iterator<Position> it = this.moves.iterator();
+        Position first = it.next();
+        Position second = it.next();
+        int delta = Math.abs(second._x - first._x) + Math.abs(second._y - first._y);
+        ans+=delta;
+        while (it.hasNext()) {
+            first = second;
+            second = it.next();
+            delta = Math.abs(second._x - first._x) + Math.abs(second._y - first._y);
+            ans+=delta;
+        }
+        return ans;
+//      return this.totalDist;
     }
 
     public Position getLastPosition() {

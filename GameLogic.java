@@ -12,6 +12,7 @@ public class GameLogic implements PlayableLogic {
 
     private boolean secondPlayerTurn;
     private ConcretePiece[][] board;
+    private boolean isGameFinished;
 
     //Constructor
     public GameLogic() {
@@ -53,20 +54,17 @@ public class GameLogic implements PlayableLogic {
         this.board[b._x][b._y] = poa;
         // Adding information for Statistics
         // Steps taken
-        int dist = Math.abs(a._x - b._x) + Math.abs(a._y - b._y);
-        poa.addDist(dist);
+        //int dist = Math.abs(a._x - b._x) + Math.abs(a._y - b._y);
+//        poa.addDist(dist);
         // Add position for moves history
         poa.addMove(b);
         if (!(poa instanceof King)) {
             ((Pawn) poa).addKills(updateKills(b));
         }
         this.board[a._x][a._y] = null;
+        this.isGameFinished = isGameFinishedHelper();
         secondPlayerTurn = !secondPlayerTurn; // switch turns
-        /**
-         * Problem: only if i activate isGameFinished the test works,
-         * need to talk to the teacher
-         */
-        //isGameFinished();
+
         return true;
     }
 
@@ -142,6 +140,10 @@ public class GameLogic implements PlayableLogic {
 
     @Override
     public boolean isGameFinished() {
+        return this.isGameFinished;
+    }
+
+    private boolean isGameFinishedHelper() {
         // Player 1 wins
         if (isCorner(pieces[30].getLastPosition())) {
             this.playerOne.addWin();
@@ -227,6 +229,7 @@ public class GameLogic implements PlayableLogic {
             board[x][y] = p;
         }
         secondPlayerTurn = true;
+        this.isGameFinished = false;
     }
 
     @Override
