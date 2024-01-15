@@ -262,6 +262,7 @@ public class GameLogic implements PlayableLogic {
                 }
                 ((Pawn) lpm).substractKills(pk.size());
             }
+            this.secondPlayerTurn = !this.secondPlayerTurn;
         }
     }
 
