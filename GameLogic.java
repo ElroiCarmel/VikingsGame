@@ -8,8 +8,6 @@ public class GameLogic implements PlayableLogic {
 
     private ConcretePiece[] pieces;
 
-    //private ConcretePlayer currentPlayer;
-
     private boolean secondPlayerTurn;
     private ConcretePiece[][] board;
     private boolean isGameFinished;
@@ -77,50 +75,39 @@ public class GameLogic implements PlayableLogic {
         return true;
     }
 
+
+
     private LinkedList<ConcretePiece> updateKills(Position p) {
         LinkedList<ConcretePiece> ans = new LinkedList<>();
         int x = p._x, y = p._y;
-        ConcretePlayer currentPlayer = (this.isSecondPlayerTurn()) ? this.playerTwo : this.playerOne;
-        Position check;
+        Position[] check = new Position[8];
         // Up
-        check = new Position(x, y - 1);
-        if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
-            if (y - 1 == 0 || (this.board[x][y - 2] != null && this.board[x][y - 2].getOwner() == currentPlayer && (this.board[x][y - 2] instanceof Pawn))) {
-                ans.add(this.board[check._x][check._y]);
-                this.board[check._x][check._y] = null;
-            }
-        }
+        check[0] = new Position(x, y - 1); check[1] = new Position(x, y - 2);
         // Down
-        check = new Position(x, y + 1);
-        if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
-            if (y + 1 == 10 || (this.board[x][y + 2] != null && this.board[x][y + 2].getOwner() == currentPlayer && (this.board[x][y + 2] instanceof Pawn))) {
-                ans.add(this.board[check._x][check._y]);
-                this.board[check._x][check._y] = null;
-            }
-        }
+        check[2] = new Position(x, y + 1); check[3] = new Position(x, y + 2);
         // Right
-        check = new Position(x + 1, y);
-        if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
-            if (x + 1 == 10 || (this.board[x + 2][y] != null && this.board[x + 2][y].getOwner() == currentPlayer && (this.board[x + 2][y] instanceof Pawn))) {
-                ans.add(this.board[check._x][check._y]);
-                this.board[check._x][check._y] = null;
-            }
-        }
+        check[4] = new Position(x + 1, y); check[5] = new Position(x + 2, y);
         // Left
-        check = new Position(x - 1, y);
-        if (inRange(check) && getPieceAtPosition(check) != null && !(getPieceAtPosition(check) instanceof King) && getPieceAtPosition(check).getOwner() != currentPlayer) {
-            if (x - 1 == 0 || (this.board[x - 2][y] != null && this.board[x - 2][y].getOwner() == currentPlayer && (this.board[x - 2][y] instanceof Pawn))) {
-                ans.add(this.board[check._x][check._y]);
-                this.board[check._x][check._y] = null;
+        check[6] = new Position(x - 1, y); check[7] = new Position(x - 2, y);
+        for (int i = 0; i < 7; i+=2) {
+            if (isKilledP(check[i], check[i+1])) {
+                ans.add((ConcretePiece) getPieceAtPosition(check[i]));
+                this.board[check[i]._x][check[i]._y] = null;
             }
         }
-
         return ans;
+    }
 
-        // x+1,y+0
-        // x-1, y+0
-        //x+0, y-1
-        //x+0, y+1
+    private boolean isKilledP(Position middle, Position closing) {
+        if (!inRange(middle)) return false;
+        ConcretePiece middlePiece = (ConcretePiece) getPieceAtPosition(middle);
+        ConcretePlayer currentPlayer = (this.isSecondPlayerTurn()) ? this.playerTwo : this.playerOne;
+        if (middlePiece == null || middlePiece instanceof King || middlePiece.getOwner() == currentPlayer) return false;
+        if (inRange(closing) && !isCorner(closing)) {
+            ConcretePiece closingPiece = (ConcretePiece) getPieceAtPosition(closing);
+            if (closingPiece == null || closingPiece instanceof King || closingPiece.getOwner() != currentPlayer) return false;
+        }
+        return true;
     }
 
     private boolean inRange(Position p) {
