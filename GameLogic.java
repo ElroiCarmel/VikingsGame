@@ -11,7 +11,6 @@ public class GameLogic implements PlayableLogic {
     private boolean secondPlayerTurn;
     private ConcretePiece[][] board;
     private boolean isGameFinished;
-
     private Stack<Turn> turnHistory;
 
     //Constructor
@@ -74,8 +73,6 @@ public class GameLogic implements PlayableLogic {
 
         return true;
     }
-
-
 
     private LinkedList<ConcretePiece> updateKills(Position p) {
         LinkedList<ConcretePiece> ans = new LinkedList<>();
@@ -235,9 +232,9 @@ public class GameLogic implements PlayableLogic {
             Turn lastTurn = this.turnHistory.pop();
             ConcretePiece lpm = lastTurn.getPieceMoved();
             LinkedList<ConcretePiece> pk = lastTurn.getPiecesKilled();
-            Position temp = lpm.getLastPosition();
+            Position temp = lpm.removeLstPos();
             this.board[temp._x][temp._y] = null;
-            lpm.removeLstPos();
+//            lpm.removeLstPos();
             temp = lpm.getLastPosition();
             this.board[temp._x][temp._y] = lpm;
             if (!pk.isEmpty()) {

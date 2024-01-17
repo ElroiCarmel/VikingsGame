@@ -6,8 +6,6 @@ public abstract class ConcretePiece implements Piece {
     //data
     private final Player owner;
     private final int id;
-
-
     private List<Position> moves = new LinkedList<>();
     //methods
     public ConcretePiece(ConcretePlayer player, int id) {
@@ -19,15 +17,12 @@ public abstract class ConcretePiece implements Piece {
 
         return this.owner;
     }
-
     public void addMove(Position p) {
         this.moves.add(p);
     }
     public int getID(){
         return this.id;
     }
-
-
     public int getTotalDist(){
         if (moves.size() < 2) return 0;
         int ans = 0;
@@ -44,17 +39,19 @@ public abstract class ConcretePiece implements Piece {
         }
         return ans;
     }
-
     public Position getLastPosition() {
         return moves.getLast();
     }
-
-    public void removeLstPos() {
+    /**
+     * Removes the last position of this piece
+     * @return Last position if the move history is not empty else returns null
+     */
+    public Position removeLstPos() {
         if (!moves.isEmpty()) {
-            this.moves.removeLast();
+            return this.moves.removeLast();
         }
+        return null;
     }
-
     public List<Position> getMoves() {
         return moves;
     }
